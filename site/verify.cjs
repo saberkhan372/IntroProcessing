@@ -10,13 +10,13 @@ const run=s=>vm.runInContext(s,c);
 const rendered=run(`Object.assign(Object.fromEntries(Object.entries(pages).map(([k,f])=>[k,f()])),Object.fromEntries(LESSONS.map(l=>['lesson/'+l.id,study(l)])),Object.fromEntries(COURSE.phases.map(p=>['phase/'+p[0],phasePage(p[0])])))`);
 assert.equal(Object.keys(rendered).length,53);
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-for(const [,file]of html.matchAll(/<script src="([^"]+)"/g))assert(fs.existsSync(path.join(root,file)),file);
+for(const [,file]of html.matchAll(/<script src="([^"]+)"/g))assert(fs.existsSync(path.join(root,file.split('?')[0])),file);
 for(const [route,body]of Object.entries(rendered)){
  assert(!body.includes('undefined'),route+' contains undefined');assert(body.includes('<h1>'),route+' lacks a title');
  for(const[,link]of (html+body).matchAll(/(?:href|src)="([^"]+)"/g)){
   if(link.startsWith('https:'))continue;
   if(link.startsWith('#')){const target=link.slice(1).split('?')[0];assert(target==='main'||rendered[target],route+' → '+link);}
-  else assert(fs.existsSync(path.join(root,link)),route+' missing '+link);
+  else assert(fs.existsSync(path.join(root,link.split('?')[0])),route+' missing '+link);
  }
 }
 run(`for(const l of LESSONS){if(!l.prediction.prompt||!l.prediction.reveal||l.missions.length<3||!l.checks.length)throw Error('Incomplete lesson '+l.id);const s=slides(l);if(!s[1][0].startsWith('Predict')||!s[2][0].startsWith('Reason it through'))throw Error('Reveal ordering');if(!s.every(x=>x.length===3))throw Error('Slide shape');}`);
