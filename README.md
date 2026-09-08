@@ -2,6 +2,12 @@
 
 A creative Java course with eleven workbook lessons across nine phases, interactive concept tools, a local notebook, project stories, and a B Block calendar.
 
+## Course texts
+- Primary: *Learning Processing*, second edition.
+- Supplementary: *Code as Creative Medium* and *The Nature of Code*.
+
+Use the primary text for foundational lessons and reading references, with supplementary texts for creative prompts and extensions. Chapter and exercise mappings for the Unit 1 slides still need verification. See [course decisions](DECISIONS.md).
+
 ## Local use
 Open `site/index.html` in a browser. Core learning tools require no accounts or backend. Notes stay in the browser on the current device; export JSON to back up or move them.
 
