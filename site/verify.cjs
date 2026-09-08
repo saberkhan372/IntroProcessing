@@ -4,11 +4,11 @@ const root=__dirname,elements=new Map();
 function el(id){if(!elements.has(id))elements.set(id,{id,value:'',textContent:'',innerHTML:'',disabled:false,attrs:{},setAttribute(k,v){this.attrs[k]=String(v)},removeAttribute(k){delete this.attrs[k]},focus(){},classList:{toggle(){}},files:[]});return elements.get(id)}
 const saved=new Map();const storage={getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)};
 const c={console,Date,URLSearchParams,URL,Blob,setTimeout,clearTimeout,location:{hash:'#home'},confirm:()=>true,document:{getElementById:el,querySelector:s=>el(s),querySelectorAll:()=>[],addEventListener(){},body:{classList:{toggle(){}}}},window:{localStorage:storage,scrollTo(){},print(){},addEventListener(){}},matchMedia:()=>({matches:true})};vm.createContext(c);
-const scripts=['app.js','expansion.js','lessons.js','course-data.js','calendar.js','notebook-store.js','fullsite.js'];
+const scripts=['app.js','expansion.js','lessons.js','course-data.js','calendar.js','notebook-store.js','unit-one.js','fullsite.js'];
 for(const file of [...scripts,'boot.js']){const text=fs.readFileSync(path.join(root,file),'utf8');new vm.Script(text,{filename:file});if(file!=='boot.js')vm.runInContext(text,c,{filename:file});}
 const run=s=>vm.runInContext(s,c);
 const rendered=run(`Object.assign(Object.fromEntries(Object.entries(pages).map(([k,f])=>[k,f()])),Object.fromEntries(LESSONS.map(l=>['lesson/'+l.id,study(l)])),Object.fromEntries(COURSE.phases.map(p=>['phase/'+p[0],phasePage(p[0])])))`);
-assert.equal(Object.keys(rendered).length,46);
+assert.equal(Object.keys(rendered).length,53);
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const [,file]of html.matchAll(/<script src="([^"]+)"/g))assert(fs.existsSync(path.join(root,file)),file);
 for(const [route,body]of Object.entries(rendered)){
@@ -19,7 +19,7 @@ for(const [route,body]of Object.entries(rendered)){
   else assert(fs.existsSync(path.join(root,link)),route+' missing '+link);
  }
 }
-run(`for(const l of LESSONS){if(!l.prediction.prompt||!l.prediction.reveal||l.missions.length<3||!l.checks.length)throw Error('Incomplete lesson '+l.id);const s=slides(l);if(s[1][0]!=='Predict'||s[2][0]!=='Reason it through')throw Error('Reveal ordering');if(!s.every(x=>x.length===3))throw Error('Slide shape');}`);
+run(`for(const l of LESSONS){if(!l.prediction.prompt||!l.prediction.reveal||l.missions.length<3||!l.checks.length)throw Error('Incomplete lesson '+l.id);const s=slides(l);if(!s[1][0].startsWith('Predict')||!s[2][0].startsWith('Reason it through'))throw Error('Reveal ordering');if(!s.every(x=>x.length===3))throw Error('Slide shape');}`);
 run(`if(MEETINGS.length!==80||new Set(MEETINGS).size!==80)throw Error('Calendar count');if(WINDOWS.reduce((s,w)=>s+w[4],0)!==9)throw Error('Flexible count');for(const w of WINDOWS)if(MEETINGS.filter(d=>d>=w[0]&&d<=w[1]).length!==w[3])throw Error('Window mismatch');`);
 // Existing interactive array model and escaped portfolio preview.
 run("initPage('arrays')");assert(el('array-back').disabled);el('array-next').onclick();el('array-next').onclick();assert.equal((el('array-slots').innerHTML.match(/constructed/g)||[]).length,1);el('array-next').onclick();assert(el('array-next').disabled);el('array-reset').onclick();assert(el('array-back').disabled);
@@ -49,7 +49,7 @@ assert(!run("classroom('compose')").includes('href='));
 run("wireStudy(LESSONS[0])");el('lesson-prediction').value='The rectangle';el('lesson-prediction').oninput();assert(saved.size===1);assert(run("notebook.lessons.compose.prediction")==='The rectangle');
 run("initFullPage('investigation')");el('inv-hypothesis').oninput({target:{value:'Holding repeats'}});el('inv-b').oninput({target:{value:'Move to release'}});el('investigation-story').onclick();assert(run('drafts.story.investigation').includes('Move to release'));
 run("initFullPage('library')");el('lesson-search').value='no-such-concept';el('lesson-search').oninput();assert(el('lesson-results').innerHTML.includes('No matching lessons'));
-console.log('PASS: 46 routes, 11 complete lesson schemas and slide order, local targets, calendar 80/9, original tools, notebook roundtrip/merge/error handling, escaped preview, workbook storage, and investigation handoff.');
+console.log('PASS: 53 routes, 17 complete lesson schemas and slide order, local targets, calendar 80/9, original tools, notebook roundtrip/merge/error handling, escaped preview, workbook storage, and investigation handoff.');
 // Execute application routing/initialization with inert canvas primitives.
 // This catches startup errors but makes no claim about visual rendering.
 c.devicePixelRatio=1;c.requestAnimationFrame=()=>1;c.cancelAnimationFrame=()=>{};
@@ -62,3 +62,6 @@ run('wireStudy(LESSONS[0]); notebook.review={requirement:"Keep this",location:"l
 c.confirm=()=>false;el('evidence-0').onclick();assert.equal(run('notebook.review.requirement'),'Keep this');
 c.confirm=()=>true;el('evidence-0').onclick();assert.equal(run('notebook.review.requirement'),run('LESSONS[0].title+" — "+LESSONS[0].checks[0]'));assert.equal(c.location.hash,'review');assert.equal(run('notebook.review.location'),'');assert.equal(JSON.parse(saved.get(run('NotebookStore.KEY'))).review.requirement,run('notebook.review.requirement'));
 console.log('PASS: lesson evidence handoff, replacement cancellation, and persisted review.');
+
+run(`if(UNIT_ONE_DAYS.length!==6)throw Error('Daily coverage');for(const l of UNIT_ONE_DAYS){if(l.deck.length!==10||l.deck.reduce((n,s)=>n+s.minutes,0)!==75)throw Error('Pacing');if(!MEETINGS.includes(l.suggestedDate))throw Error('Unknown date');if(!dailyMarkdown(l).includes(l.title))throw Error('Slide export');for(const s of l.deck){if(!s.title||!s.label||!s.minutes)throw Error('Incomplete slide');if(s.visual&&!unitVisual(s.visual))throw Error('Missing diagram');if(s.link&&!pages[s.link[0]])throw Error('Missing slide link');}}`);
+console.log('PASS: six daily decks, 60 slides, 75-minute pacing, calendar dates, diagrams, and export.');

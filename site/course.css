@@ -3,3 +3,5 @@
 .page-directory{margin:0 0 26px;padding:12px 16px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}.page-directory nav{display:flex;flex-wrap:wrap;margin:10px 0;overflow:visible}.page-directory nav a{font:14px system-ui;padding:7px 10px;white-space:normal}.page-directory h3{margin-top:18px}
 
 @media screen and (prefers-color-scheme:dark){.course-status{background:var(--tint);color:var(--ink)}}
+
+.unit-diagram{display:block;width:min(100%,440px);height:auto;background:#f7f9f6;border-radius:6px;margin:16px 0}.daily-slide-outline section{padding:18px 0;border-bottom:1px solid var(--line)}.daily-slide-outline pre{font-size:12px}.present-slide:has(.unit-diagram){padding-top:20px;padding-bottom:20px}.present-slide:has(.unit-diagram) h1{font-size:clamp(30px,3.4vw,48px)}.present-slide:has(.unit-diagram) p,.present-slide:has(.unit-diagram) li{font-size:clamp(18px,1.7vw,24px)}.present-slide:has(.unit-diagram) pre{font-size:18px}.present-slide:has(.unit-diagram) .unit-diagram{max-height:220px;width:auto;max-width:100%}@media print{.daily-slide-outline section{break-before:page}.daily-slide-outline{display:block}}
