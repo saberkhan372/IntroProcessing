@@ -3,9 +3,9 @@
 Dot[] dots;
 void setup() {
   size(600, 240);
-  dots = new Dot[3];
+  dots = new Dot[15];
   for (int i = 0; i < dots.length; i++) {
-    dots[i] = new Dot(40 + i * 80, 1 + i);
+    dots[i] = new Dot(20 + i * 38, 1 + i * 0.1);
   }
 }
 void draw() {

@@ -57,3 +57,8 @@ el('canvas').clientWidth=600;el('canvas').clientHeight=240;el('canvas').getConte
 for(const route of Object.keys(rendered)){c.location.hash='#'+route;run('render()');assert(el('#main').innerHTML.includes('<h1>'),route+' failed mount');}
 c.location.hash='#lesson/compose?view=present';run('render()');assert(el('#main').innerHTML.includes('presentation'));c.location.hash='#not-a-page';run('render()');assert(el('#main').innerHTML.includes('Page not found'));
 console.log('PASS: all route initializers, presentation entry, and unknown-route fallback execute without errors.');
+// Evidence handoff must preserve existing work when replacement is declined.
+run('wireStudy(LESSONS[0]); notebook.review={requirement:"Keep this",location:"line 9",explanation:"Existing reasoning",test:"Existing test"}');
+c.confirm=()=>false;el('evidence-0').onclick();assert.equal(run('notebook.review.requirement'),'Keep this');
+c.confirm=()=>true;el('evidence-0').onclick();assert.equal(run('notebook.review.requirement'),run('LESSONS[0].title+" — "+LESSONS[0].checks[0]'));assert.equal(c.location.hash,'review');assert.equal(run('notebook.review.location'),'');assert.equal(JSON.parse(saved.get(run('NotebookStore.KEY'))).review.requirement,run('notebook.review.requirement'));
+console.log('PASS: lesson evidence handoff, replacement cancellation, and persisted review.');
